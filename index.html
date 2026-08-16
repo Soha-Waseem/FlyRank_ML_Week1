@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Applied Machine Learning Research Paper: Predicting Content Performance Decline for Search Intelligence by Soha Waseem (FlyRank ML Internship Capstone)">
+  <meta name="keywords" content="Machine Learning, Search Intelligence, Content Performance, FlyRank, Decision Support, Content Decay">
+  <meta name="author" content="Soha Waseem">
+  <title>Predicting Content Performance Decline for Search Intelligence | Applied ML Research Paper</title>
+  
+  <!-- Modern Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <!-- Sticky Site Navigation -->
+  <header class="site-header">
+    <div class="header-container">
+      <a href="#" class="brand-badge">
+        <div class="brand-icon">FR</div>
+        <span>FlyRank Research</span>
+      </a>
+      
+      <nav>
+        <ul class="nav-links">
+          <li><a href="#abstract">Abstract</a></li>
+          <li><a href="#introduction">Intro</a></li>
+          <li><a href="#data">Data</a></li>
+          <li><a href="#methodology">Methodology</a></li>
+          <li><a href="#results">Results</a></li>
+          <li><a href="#limitations">Limitations</a></li>
+          <li><a href="#recommendations">Recommendations</a></li>
+          <li><a href="#reproducibility">Reproducibility</a></li>
+          <li><a href="#acknowledgments">Credit</a></li>
+        </ul>
+      </nav>
+
+      <div class="header-actions">
+        <a href="https://github.com/Soha-Waseem/FlyRank_ML_Week1" target="_blank" rel="noopener" class="btn-github">
+          <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.28.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+          Repository
+        </a>
+      </div>
+    </div>
+    <div id="reading-progress" class="reading-progress-bar"></div>
+  </header>
+
+  <main class="paper-container">
+
+    <!-- Paper Hero Header & Title + Abstract (Section 1) -->
+    <header class="paper-hero" id="abstract">
+      <div class="paper-tag-list">
+        <span class="paper-tag tag-primary">Applied Machine Learning</span>
+        <span class="paper-tag tag-success">Leakage-Audited Analysis</span>
+        <span class="paper-tag">FlyRank ML Internship Capstone</span>
+      </div>
+
+      <h1 class="paper-title">Predicting Content Performance Decline for Search Intelligence</h1>
+
+      <div class="paper-meta">
+        <div class="author-info">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+          <span>Soha Waseem</span>
+        </div>
+        <div class="meta-item">
+          <span>Dataset: FlyRank Warehouse</span>
+        </div>
+        <div class="meta-item">
+          <span>Evaluation: Temporal Holdout (Apr–May 2026)</span>
+        </div>
+      </div>
+
+      <!-- Section 1: Abstract -->
+      <div class="abstract-box">
+        <div class="abstract-heading">1. Abstract</div>
+        <p class="abstract-text">This study asks whether historical search, traffic, engagement, and content signals can help identify content items that are likely to experience a meaningful decline in next-month impressions. Using the FlyRank internship warehouse, I constructed a monthly content-level dataset and defined decline as a 20% or greater reduction in impressions in the following month. I compared a constant-probability baseline with leakage-safe Logistic Regression and Random Forest models using a time-based train/test split. The leakage-safe Random Forest achieved a ROC-AUC of 0.5554 and Average Precision of 0.6386 compared with a ROC-AUC of 0.5000 for the baseline. The resulting ranking is therefore presented as a directional decision-support tool for prioritizing content review rather than as a causal prediction of future search performance.</p>
+      </div>
+    </header>
+
+    <!-- Section 2: Introduction / Problem Statement -->
+    <section class="paper-section" id="introduction">
+      <div class="section-header">
+        <h2 class="section-title"><span class="section-number">2.</span> Introduction / Problem Statement</h2>
+      </div>
+
+      <p>
+        In search engine optimization and digital content management, editorial teams manage thousands of published pages across multiple domains. When content performance decays over time, manually identifying which articles require immediate review or optimization creates a severe operational bottleneck.
+      </p>
+      <p style="margin-top: 1rem;">
+        Treating all content items equally leads to inefficient resource allocation. The objective of this research is to construct an automated directional decision-support system that identifies content observations at elevated risk of next-month impression decline. Rather than attempting to automate editorial actions or predict search outcomes with absolute certainty, the system outputs a probability-ranked queue to help content teams prioritize limited human review capacity.
+      </p>
+
+      <div class="key-finding-box">
+        <div class="key-finding-title">
+          <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+          Key Finding & Honest Framing
+        </div>
+        <p style="font-size: 0.95rem; color: var(--text-primary);">
+          The leakage-safe Random Forest model demonstrates a modest but statistically measurable ranking signal beyond the prevalence baseline (+0.0554 ROC-AUC improvement). The model serves strictly as a <strong>directional decision-support tool</strong>. Furthermore, empirical observation of monthly decline rates reveals a temporal distribution shift between the training period (34.6%–43.9% decline rate) and the holdout test period (47.9%–48.7% decline rate), highlighting the importance of continuous temporal monitoring.
+        </p>
+      </div>
+    </section>
+
+    <!-- Section 3: Data -->
+    <section class="paper-section" id="data">
+      <div class="section-header">
+        <h2 class="section-title"><span class="section-number">3.</span> Data Summary & Dataset Scope</h2>
+      </div>
+
+      <p>
+        The research utilizes the official FlyRank ML Internship dataset release. Daily performance data from <code>fact_content_daily_performance</code> was joined with content metadata from <code>dim_content</code> and aggregated to a monthly content-level granularity.
+      </p>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value">2,748,610</div>
+          <div class="stat-label">Monthly Observations</div>
+          <div class="stat-subtext">Jan 2025 – Jun 2026 total dataset</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">797,753</div>
+          <div class="stat-label">Eligible Labeled Rows</div>
+          <div class="stat-subtext">Observations with subsequent month</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">319,754</div>
+          <div class="stat-label">Declining Content</div>
+          <div class="stat-subtext">&ge;20% next-month impression drop</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">477,999</div>
+          <div class="stat-label">Non-Declining Content</div>
+          <div class="stat-subtext">Stable or growing impression trend</div>
+        </div>
+      </div>
+
+      <p style="margin-top: 1rem;">
+        Among the 797,753 eligible labeled observations, 319,754 are classified as declining (&ge;20% impression loss) and 477,999 as non-declining, establishing an overall baseline decline rate of 40.08%. The underlying daily performance data spans 520 unique reporting dates between 2025-01-27 and 2026-06-30 across 70 clients and 427,292 distinct content items. For strict privacy compliance, all client names, real domains, URLs, private search queries, credentials, and raw export tables were excluded from the public analysis, with identifiers fully pseudonymized.
+      </p>
+
+      <!-- Monthly Trend Chart -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Monthly Impression Decline-Rate Trend (Jan 2025 – May 2026)</div>
+            <div class="chart-subtitle">Proportion of eligible content items experiencing &ge;20% next-month impression decline</div>
+          </div>
+        </div>
+        <div class="chart-container">
+          <canvas id="chart-monthly-trend"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 4: Methodology -->
+    <section class="paper-section" id="methodology">
+      <div class="section-header">
+        <h2 class="section-title"><span class="section-number">4.</span> Methodology & Temporal Validation Design</h2>
+      </div>
+
+      <p>
+        To mirror real-world deployment, the evaluation uses a strict chronological holdout split rather than a random k-fold split. Models are trained on historical data up to March 2026 and evaluated on future unseen months (April–May 2026).
+      </p>
+
+      <div class="methodology-flow">
+        <div class="flow-step">
+          <div class="step-num">1</div>
+          <div class="step-title">Monthly Aggregation</div>
+          <div class="step-desc">Aggregated daily impression, click, position, CTR, and engagement metrics to calendar month rows.</div>
+        </div>
+        <div class="flow-step">
+          <div class="step-num">2</div>
+          <div class="step-title">Target Label Definition</div>
+          <div class="step-desc">Binary label = 1 if <code>(Next_Month_Impressions - Current_Impressions) / Current_Impressions &le; -0.20</code>.</div>
+        </div>
+        <div class="flow-step">
+          <div class="step-num">3</div>
+          <div class="step-title">Leakage Audit</div>
+          <div class="step-desc">Audited candidate features for future timestamp contamination; removed 3 non-compliant date features.</div>
+        </div>
+        <div class="flow-step">
+          <div class="step-num">4</div>
+          <div class="step-title">Time-Based Split</div>
+          <div class="step-desc">Training: Jan 2025 – Mar 2026. Testing Holdout: Apr 2026 – May 2026.</div>
+        </div>
+      </div>
+
+      <!-- Leakage Audit Section -->
+      <div class="audit-card">
+        <div class="audit-title">Data Leakage Audit & Feature Set Cleanliness</div>
+        <p style="font-size: 0.92rem; color: var(--text-primary);">
+          During systematic feature auditing, future-dated timestamps were detected in date-derived content fields. Including these would leak future knowledge into training. To preserve real-world validity, three date features were permanently removed:
+        </p>
+        <ul class="removed-features-list">
+          <li class="removed-feature-item">content_age_days</li>
+          <li class="removed-feature-item">days_since_update</li>
+          <li class="removed-feature-item">days_since_optimization</li>
+        </ul>
+        <p style="font-size: 0.88rem; color: var(--text-secondary); margin-top: 0.75rem;">
+          The final model relies strictly on the <strong>27 leakage-safe features</strong> derived from historical traffic, engagement, content properties, and search position trends.
+        </p>
+      </div>
+    </section>
+
+    <!-- Section 5: Results -->
+    <section class="paper-section" id="results">
+      <div class="section-header">
+        <h2 class="section-title"><span class="section-number">5.</span> Results & Model Performance Comparison</h2>
+      </div>
+
+      <p>
+        Three modeling approaches were evaluated on the exact chronological test holdout (April–May 2026): a prevalence baseline, leakage-safe Logistic Regression, and leakage-safe Random Forest.
+      </p>
+
+      <!-- Simple Publication Bar Chart -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Model Performance Comparison on April–May 2026 Holdout</div>
+            <div class="chart-subtitle">Publication-style comparison of ROC-AUC and Average Precision (AP)</div>
+          </div>
+        </div>
+        <div class="chart-container">
+          <canvas id="chart-model-comparison"></canvas>
+        </div>
+      </div>
+
+      <!-- Performance Table -->
+      <div class="table-container">
+        <table class="academic-table">
+          <thead>
+            <tr>
+              <th>Model Name</th>
+              <th>Evaluation Split</th>
+              <th>ROC-AUC</th>
+              <th>Average Precision (AP)</th>
+              <th>Delta over Baseline (AUC)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Prevalence Baseline</strong></td>
+              <td>Apr–May 2026 Holdout</td>
+              <td>0.5000</td>
+              <td>0.6005</td>
+              <td>+0.0000</td>
+            </tr>
+            <tr>
+              <td><strong>Leakage-safe Logistic Regression</strong></td>
+              <td>Apr–May 2026 Holdout</td>
+              <td>0.5549</td>
+              <td>0.6289</td>
+              <td>+0.0549</td>
+            </tr>
+            <tr class="highlight-row">
+              <td><strong>Leakage-safe Random Forest</strong></td>
+              <td>Apr–May 2026 Holdout</td>
+              <td><strong>0.5554</strong></td>
+              <td><strong>0.6386</strong></td>
+              <td><strong>+0.0554</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Feature Importance Chart -->
+      <div class="chart-card" style="margin-top: 2rem;">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Top 10 Leakage-Safe Feature Importances</div>
+            <div class="chart-subtitle">Relative Gini importance weights from final Random Forest model</div>
+          </div>
+        </div>
+        <div class="chart-container">
+          <canvas id="chart-feature-importance"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 6: Limitations & Honest Framing -->
+    <section class="paper-section" id="limitations">
+      <div class="section-header">
+        <h2 class="section-title"><span class="section-number">6.</span> Limitations & Honest Framing</h2>
+      </div>
+
+      <div class="abstract-box" style="background-color: #fef2f2; border-left-color: #dc2626; margin-bottom: 1.5rem;">
+        <div class="abstract-heading" style="color: #b91c1c;">Operational & Analytical Boundaries</div>
+        <ul style="padding-left: 1.2rem; font-size: 0.95rem; line-height: 1.7; color: var(--text-primary);">
+          <li><strong>Directional Decision Support Only:</strong> This model is built to prioritize limited editorial review capacity. It is not a high-accuracy predictive classifier nor an automated decision engine.</li>
+          <li><strong>No Causality Claimed:</strong> The analysis establishes observational associations within historical warehouse data. It does not prove that modifying metadata, rewriting text, or refreshing content causes impression recovery.</li>
+          <li><strong>No Google Algorithm Proof:</strong> The model does not demonstrate internal ranking mechanics of commercial search engines or claim to reverse-engineer Google's search algorithms.</li>
+          <li><strong>Operational Target Boundary:</strong> Target decline is defined operationally as a &ge;20% next-month impression drop, reflecting business thresholds rather than an intrinsic concept of content quality.</li>
+          <li><strong>Observed Temporal Shift:</strong> Monthly decline rates increase from 34.6% in early training to 48.7% in the test period, reflecting real-world performance shifts that require periodic model re-calibration.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Section 7: Ranked Recommendations -->
+    <section class="paper-section" id="recommendations">
+      <div class="section-header">
+        <h2 class="section-title"><span class="section-number">7.</span> Ranked Recommendations & Action Framework</h2>
+      </div>
+
+      <p>
+        The final action playbook orders test-period content observations by predicted probability of decline. Content items are grouped into risk bands to allow editorial teams to allocate review resources efficiently.
+      </p>
+
+      <div class="stats-grid" style="margin: 1.5rem 0;">
+        <div class="chart-card" style="margin: 0; grid-column: span 2;">
+          <div class="chart-header">
+            <div class="chart-title">Risk Band Distribution (Test Holdout)</div>
+          </div>
+          <div class="chart-container" style="min-height: 240px;">
+            <canvas id="chart-risk-distribution"></canvas>
+          </div>
+        </div>
+
+        <div class="stat-card" style="display: flex; flex-direction: column; justify-content: center;">
+          <div class="stat-value" style="color: var(--danger-color);">Higher Risk</div>
+          <div class="stat-subtext" style="font-size: 0.9rem; margin-top: 0.5rem;">
+            Prob &gt; 0.65<br>Immediate editorial review recommended
+          </div>
+        </div>
+      </div>
+
+      <h3 style="font-size: 1.15rem; font-weight: 700; margin: 1.5rem 0 1rem; color: var(--accent-primary);">
+        Action Framework by Reason Codes
+      </h3>
+
+      <div class="methodology-flow">
+        <div class="flow-step" style="border-top: 3px solid var(--accent-secondary);">
+          <div class="reason-code-badge" style="margin-bottom: 0.5rem;">low_ctr</div>
+          <div class="step-title">Low Click-Through Rate</div>
+          <div class="step-desc">Content captures impressions but few clicks. Prioritize title tag, meta description, and search snippet alignment review.</div>
+        </div>
+        <div class="flow-step" style="border-top: 3px solid var(--warning-color);">
+          <div class="reason-code-badge" style="margin-bottom: 0.5rem;">low_scroll_activity</div>
+          <div class="step-title">Low Scroll Activity</div>
+          <div class="step-desc">Below-average user scroll depth. Review page layout, intro engagement, and visual content hierarchy.</div>
+        </div>
+        <div class="flow-step" style="border-top: 3px solid var(--danger-color);">
+          <div class="reason-code-badge" style="margin-bottom: 0.5rem;">weaker_search_position</div>
+          <div class="step-title">Weaker Search Position</div>
+          <div class="step-desc">Search position has drifted lower. Review topic coverage, depth, and alignment with target search intent.</div>
+        </div>
+        <div class="flow-step" style="border-top: 3px solid #7c3aed;">
+          <div class="reason-code-badge" style="margin-bottom: 0.5rem;">impressions_without_clicks</div>
+          <div class="step-title">Impressions w/o Clicks</div>
+          <div class="step-desc">High impressions but near-zero clicks. Urgent review of search snippet relevance and value proposition.</div>
+        </div>
+      </div>
+
+      <!-- Filterable Recommendation Table -->
+      <h3 style="font-size: 1.1rem; font-weight: 700; margin: 2rem 0 0.75rem;">
+        Anonymized Recommendation Prioritization Queue
+      </h3>
+
+      <div class="filter-bar">
+        <button class="filter-btn active" data-filter="all">All Reason Codes</button>
+        <button class="filter-btn" data-filter="low_ctr">low_ctr</button>
+        <button class="filter-btn" data-filter="low_scroll_activity">low_scroll_activity</button>
+        <button class="filter-btn" data-filter="weaker_search_position">weaker_search_position</button>
+        <button class="filter-btn" data-filter="impressions_without_clicks">impressions_without_clicks</button>
+      </div>
+
+      <div class="table-container">
+        <table class="academic-table">
+          <thead>
+            <tr>
+              <th>Priority Rank</th>
+              <th>Decline Risk Score</th>
+              <th>Risk Band</th>
+              <th>Primary Reason Code</th>
+              <th>Recommended Review Action</th>
+            </tr>
+          </thead>
+          <tbody id="recommendations-table-body">
+            <tr data-reason="impressions_without_clicks">
+              <td><strong>Rank #1</strong></td>
+              <td>0.7420</td>
+              <td><span class="badge-risk risk-higher">Higher risk</span></td>
+              <td><span class="reason-code-badge">impressions_without_clicks</span></td>
+              <td>Inspect search snippet metadata & value prop alignment</td>
+            </tr>
+            <tr data-reason="weaker_search_position">
+              <td><strong>Rank #2</strong></td>
+              <td>0.7185</td>
+              <td><span class="badge-risk risk-higher">Higher risk</span></td>
+              <td><span class="reason-code-badge">weaker_search_position</span></td>
+              <td>Audit topic depth and query search intent alignment</td>
+            </tr>
+            <tr data-reason="low_ctr">
+              <td><strong>Rank #3</strong></td>
+              <td>0.6890</td>
+              <td><span class="badge-risk risk-higher">Higher risk</span></td>
+              <td><span class="reason-code-badge">low_ctr</span></td>
+              <td>Review title tag formatting and meta snippet targeting</td>
+            </tr>
+            <tr data-reason="low_scroll_activity">
+              <td><strong>Rank #4</strong></td>
+              <td>0.6410</td>
+              <td><span class="badge-risk risk-medium">Medium risk</span></td>
+              <td><span class="reason-code-badge">low_scroll_activity</span></td>
+              <td>Review content introduction and page visual hierarchy</td>
+            </tr>
+            <tr data-reason="low_ctr">
+              <td><strong>Rank #5</strong></td>
+              <td>0.5950</td>
+              <td><span class="badge-risk risk-medium">Medium risk</span></td>
+              <td><span class="reason-code-badge">low_ctr</span></td>
+              <td>Review title tag clarity and CTA positioning</td>
+            </tr>
+            <tr data-reason="weaker_search_position">
+              <td><strong>Rank #6</strong></td>
+              <td>0.5420</td>
+              <td><span class="badge-risk risk-medium">Medium risk</span></td>
+              <td><span class="reason-code-badge">weaker_search_position</span></td>
+              <td>Check subhead coverage against competing ranking content</td>
+            </tr>
+            <tr data-reason="low_scroll_activity">
+              <td><strong>Rank #7</strong></td>
+              <td>0.3850</td>
+              <td><span class="badge-risk risk-lower">Lower risk</span></td>
+              <td><span class="reason-code-badge">low_scroll_activity</span></td>
+              <td>Routine content review and readability check</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Section 8: Reproducibility -->
+    <section class="paper-section" id="reproducibility">
+      <div class="section-header">
+        <h2 class="section-title"><span class="section-number">8.</span> Reproducibility & Repository Access</h2>
+      </div>
+
+      <p>
+        The entire analytical pipeline was constructed using standard Python data science libraries: <code>DuckDB</code>, <code>pandas</code>, <code>scikit-learn</code>, and <code>matplotlib</code>.
+      </p>
+      <p style="margin-top: 0.75rem;">
+        The workflow is organized sequentially across assignment notebooks under <code>work/notebooks/</code> alongside the final <code>capstone.ipynb</code>. All dataset identifiers are pseudonymized. No client names, raw private queries, credentials, or private exports are required or exposed.
+      </p>
+
+      <div class="citation-box" style="margin-top: 1.5rem;">
+        <button id="btn-copy-citation" class="btn-copy">Copy BibTeX</button>
+        <pre id="citation-text">@techreport{Waseem2026FlyRank,
+  title       = {Predicting Content Performance Decline for Search Intelligence},
+  author      = {Waseem, Soha},
+  institution = {FlyRank ML Internship Program},
+  year        = {2026},
+  url         = {https://github.com/Soha-Waseem/FlyRank_ML_Week1}
+}</pre>
+      </div>
+
+      <div style="margin-top: 1.5rem; text-align: center;">
+        <a href="https://github.com/Soha-Waseem/FlyRank_ML_Week1" target="_blank" rel="noopener" class="btn-github" style="font-size: 1rem; padding: 0.6rem 1.2rem;">
+          <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.28.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+          Access Repository on GitHub
+        </a>
+      </div>
+    </section>
+
+    <!-- Section 9: Acknowledgments & Data Credit -->
+    <section class="paper-section" id="acknowledgments">
+      <div class="section-header">
+        <h2 class="section-title"><span class="section-number">9.</span> Acknowledgments & Data Credit</h2>
+      </div>
+
+      <p style="font-size: 1.1rem; font-weight: 600; color: var(--text-primary);">
+        Built on the <a href="https://flyrank.ai" target="_blank" rel="noopener">FlyRank</a> ML Internship dataset.
+      </p>
+
+      <p style="margin-top: 0.75rem;">
+        The dataset was provided as part of the FlyRank Machine Learning Internship program and was used for educational research and decision-support modeling. Special thanks to the FlyRank ML team for dataset curation and internship guidance.
+      </p>
+      <p style="margin-top: 0.5rem; font-size: 0.9rem; color: var(--text-muted);">
+        Data Source: <a href="https://flyrank.ai" target="_blank" rel="noopener">https://flyrank.ai</a>
+      </p>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="footer-container">
+      <div class="footer-brand">
+        <div class="footer-logo">FlyRank ML Internship Capstone</div>
+        <div class="footer-desc">
+          Applied Machine Learning Research Paper: Predicting Content Performance Decline for Search Intelligence.
+        </div>
+      </div>
+
+      <div class="footer-links">
+        <div>
+          <div class="footer-col-title">Paper Links</div>
+          <ul class="footer-col-list">
+            <li><a href="#abstract">Abstract</a></li>
+            <li><a href="#results">Model Results</a></li>
+            <li><a href="#limitations">Limitations</a></li>
+            <li><a href="#recommendations">Action Playbook</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="footer-col-title">Resources</div>
+          <ul class="footer-col-list">
+            <li><a href="https://github.com/Soha-Waseem/FlyRank_ML_Week1" target="_blank" rel="noopener">GitHub Repository</a></li>
+            <li><a href="https://flyrank.ai" target="_blank" rel="noopener">FlyRank AI</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Main JavaScript File -->
+  <script src="script.js"></script>
+</body>
+</html>
